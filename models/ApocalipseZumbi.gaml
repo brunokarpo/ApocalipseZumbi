@@ -15,7 +15,7 @@ global {
 }
 
 species	humano skills: [ moving ] {
-	bool contaminado <- flip(0.3);
+	bool contaminado <- flip(0.5);
 	float agressividade <- 10.0;
 	float vida <- 50.0;
 	humano alvo_percebido <- nil;
@@ -28,10 +28,10 @@ species	humano skills: [ moving ] {
 	}
 	
 	/*
-	 * Se um zumbi tem algum humano como alvo, ele o segue.
+	 * Se um zumbi tem algum humano como alvo, ele se move o seguindo.
 	 */
 	reflex seguir_humano when: alvo_percebido != nil and contaminado{
-		do goto target:alvo_percebido;
+		do goto target:{alvo_percebido.location.x + rnd(0, 15, 1), alvo_percebido.location.y + rnd(0, 15, 1)};
 	}
 	
 	/*
@@ -46,14 +46,12 @@ species	humano skills: [ moving ] {
 	}
 	
 	/*
-	 * Se um zumbi encontra um humano próximo, ele passa a te-lo como alvo.
+	 * Se um zumbi encontra um humano próximo, ele passa a tê-lo como alvo.
 	 */
 	reflex perceber_humano_proximo when:contaminado{
 		ask humano at_distance(10){
 			if(!self.contaminado){
 				myself.alvo_percebido <- self;
-			}else{
-				myself.alvo_percebido <- nil;
 			}
 		}
 	}
@@ -65,10 +63,8 @@ species	humano skills: [ moving ] {
 	reflex atacar_humano when:contaminado {
 		ask humano at_distance(1){
 			if(!self.contaminado){
-				if(myself.agressividade = self.agressividade){
+				if(myself.agressividade >= self.agressividade){
 					self.contaminado <- true;
-				}
-				if(myself.agressividade > self.agressividade){
 					self.vida <- self.vida - myself.agressividade;
 					if(self.vida < 0){
 						do die;
@@ -118,9 +114,15 @@ species	humano skills: [ moving ] {
 }
 
 experiment apocalipse type: gui{
+	float minimum_cycle_duration <- 0.5#second;
 	output {
 		display myDisplay {
+			graphics "Ambiente" {
+				draw square(200) at:{0,0} color:rgb(235, 235, 235);
+			}
+			
 			species humano aspect:default ;
 		}
+		
 	}
 }
