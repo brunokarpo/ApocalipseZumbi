@@ -84,6 +84,7 @@ species	humano skills: [ moving ] {
 				if(myself.agressividade > self.agressividade){
 					self.vida <- self.vida - myself.agressividade;
 					if(self.vida < 0){
+						myself.agressividade <- myself.agressividade * 1.1;
 						do die;
 					}
 				}
