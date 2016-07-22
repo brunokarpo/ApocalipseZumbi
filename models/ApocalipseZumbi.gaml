@@ -65,6 +65,7 @@ species	humano skills: [ moving ] {
 			if(!self.contaminado){
 				if(myself.agressividade >= self.agressividade){
 					self.contaminado <- true;
+					self.agressividade <- 10.0;
 					self.vida <- self.vida - myself.agressividade;
 					if(self.vida < 0){
 						do die;
