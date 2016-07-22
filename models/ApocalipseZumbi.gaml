@@ -15,7 +15,7 @@ global {
 }
 
 species	humano skills: [ moving ] {
-	bool contaminado <- flip(0.5);
+	bool contaminado <- flip(0.1);
 	float agressividade <- 10.0;
 	float vida <- 50.0;
 	humano alvo_percebido <- nil;
@@ -63,10 +63,15 @@ species	humano skills: [ moving ] {
 	reflex atacar_humano when:contaminado {
 		ask humano at_distance(1){
 			if(!self.contaminado){
-				if(myself.agressividade >= self.agressividade){
+				int randomico <- rnd (1000);
+				int zumbieValue <- mod(randomico, myself.agressividade);
+				int humanValue <- mod(randomico, self.agressividade);
+				
+				if(zumbieValue >= humanValue){
 					self.contaminado <- true;
 					self.agressividade <- 10.0;
 					self.vida <- self.vida - myself.agressividade;
+					myself.agressividade <- myself.agressividade * 1.1;
 					if(self.vida < 0){
 						do die;
 					}
@@ -82,8 +87,13 @@ species	humano skills: [ moving ] {
 	reflex atacar_zumbi when:!contaminado {
 		ask humano at_distance(1){
 			if(self.contaminado){
-				if(myself.agressividade > self.agressividade){
+				int randomico <- rnd (1000);
+				int zumbieValue <- mod(randomico, myself.agressividade);
+				int humanValue <- mod(randomico, self.agressividade);
+				
+				if(humanValue > zumbieValue){
 					self.vida <- self.vida - myself.agressividade;
+					myself.agressividade <- myself.agressividade * 1.05;
 					if(self.vida < 0){
 						myself.agressividade <- myself.agressividade * 1.1;
 						do die;
@@ -99,8 +109,8 @@ species	humano skills: [ moving ] {
 	reflex trocar_experiencias when:!contaminado {
 		ask humano at_distance(1){
 			if(!self.contaminado){
-				myself.agressividade <- myself.agressividade + 0.5;
-				self.agressividade <- self.agressividade + 0.5;
+				myself.agressividade <- myself.agressividade * 1.05;
+				self.agressividade <- self.agressividade * 1.05;
 			}
 		}
 	}
