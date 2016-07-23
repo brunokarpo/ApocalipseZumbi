@@ -66,6 +66,15 @@ species	humano skills: [ moving ] {
 	}
 	
 	/*
+	 * Limita a agressividade para não ser maior do que 40.
+	 */
+	reflex limitar_agressividade {
+		if(self.agressividade > 40.0) {
+			self.agressividade <- 40.0;
+		}
+	}
+	
+	/*
 	 * Comportamento de ataque para zumbi. Se a agressividade do zumbi é maior ou igual que a
 	 * agressividade do humano saudável, o humano pode ser infectado ou morto.
 	 */
