@@ -46,6 +46,13 @@ species	humano skills: [ moving ] {
 	}
 	
 	/*
+	 * Atualiza a vida do agente contaminado, deixando ele sempre com 10 de vida, fazendo com que ele seja eliminado caso perca um combate contra um agente humano.
+	 */
+	reflex atualizar_vida_zumbi when:contaminado {
+		vida <- 10.0;
+	}
+	
+	/*
 	 * Se um zumbi encontra um humano próximo, ele passa a tê-lo como alvo.
 	 */
 	reflex perceber_humano_proximo when:contaminado{
