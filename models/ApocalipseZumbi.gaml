@@ -117,7 +117,7 @@ species	humano skills: [ moving ] {
 	 */
 	reflex trocar_experiencias when:!contaminado {
 		ask humano at_distance(1){
-			if(!self.contaminado){
+			if(!self.contaminado and (myself.agressividade < 10.0 or self.agressividade < 10.0)){
 				myself.agressividade <- myself.agressividade * 1.05;
 				self.agressividade <- self.agressividade * 1.05;
 			}
