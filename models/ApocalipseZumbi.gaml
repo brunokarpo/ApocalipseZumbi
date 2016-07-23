@@ -59,6 +59,8 @@ species	humano skills: [ moving ] {
 		ask humano at_distance(10){
 			if(!self.contaminado){
 				myself.alvo_percebido <- self;
+			} else {
+				myself.alvo_percebido <- unknown;
 			}
 		}
 	}
