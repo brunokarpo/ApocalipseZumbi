@@ -12,6 +12,12 @@ global {
 	init {
 		create humano number:number_of_humans;
 	}
+	
+	reflex fim_do_experimento {
+		if(empty(humano.population where (each.contaminado = true)) or empty(humano.population where (each.contaminado = false))){
+			do pause;
+		}
+	}
 }
 
 species	humano skills: [ moving ] {
@@ -23,15 +29,15 @@ species	humano skills: [ moving ] {
 	/*
 	 * Humanos ou zumbis sem um alvo para perseguir se movem aleatoriamente
 	 */
-	reflex mover_aleatoriamente when: alvo_percebido = nil {
+	reflex mover_aleatoriamente when: alvo_percebido = nil or alvo_percebido = unknown {
 		do wander amplitude:90;
 	}
 	
 	/*
 	 * Se um zumbi tem algum humano como alvo, ele se move o seguindo.
 	 */
-	reflex seguir_humano when: alvo_percebido != nil and contaminado{
-		do goto target:{alvo_percebido.location.x + rnd(0, 15, 1), alvo_percebido.location.y + rnd(0, 15, 1)};
+	reflex seguir_humano when: alvo_percebido != nil and alvo_percebido != unknown and contaminado{
+		do goto target:{alvo_percebido.location.x + rnd(0, 5, 1), alvo_percebido.location.y + rnd(0, 5, 1)};
 	}
 	
 	/*
