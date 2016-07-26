@@ -8,7 +8,7 @@
 model ApocalipseZumbi
 
 global {
-	int numero_de_humanos <- 50;
+	int numero_de_humanos <- 100;
 	int porcentagem_contaminados <- 10;
 	init {
 		create humano number:numero_de_humanos;
@@ -24,7 +24,7 @@ global {
 species	humano skills: [ moving ] {
 	bool contaminado <- flip(porcentagem_contaminados / 100);
 	float agressividade <- 10.0;
-	float vida <- contaminado ? 30.0 : 50.0;
+	float vida <- contaminado ? 10.0 : 50.0;
 	humano alvo_percebido <- nil;
 	
 	/*
@@ -82,9 +82,8 @@ species	humano skills: [ moving ] {
 	reflex atacar_humano when:contaminado {
 		ask humano at_distance(1){
 			if(!self.contaminado){
-				int randomico <- rnd (1000);
-				int zumbieValue <- mod(randomico, myself.agressividade);
-				int humanValue <- mod(randomico, self.agressividade);
+				int zumbieValue <- mod(rnd (1000), myself.agressividade);
+				int humanValue <- mod(rnd (1000), self.agressividade);
 				
 				if(zumbieValue > humanValue){
 					self.contaminado <- true;
@@ -105,9 +104,8 @@ species	humano skills: [ moving ] {
 	reflex atacar_zumbi when:!contaminado {
 		ask humano at_distance(1){
 			if(self.contaminado){
-				int randomico <- rnd (1000);
-				int zumbieValue <- mod(randomico, myself.agressividade);
-				int humanValue <- mod(randomico, self.agressividade);
+				int zumbieValue <- mod(rnd (1000), myself.agressividade);
+				int humanValue <- mod(rnd (1000), self.agressividade);
 				
 				if(humanValue > zumbieValue){
 					self.vida <- self.vida - myself.agressividade;
