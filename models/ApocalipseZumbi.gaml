@@ -8,9 +8,10 @@
 model ApocalipseZumbi
 
 global {
-	int number_of_humans <- 50;
+	int numero_de_humanos <- 50;
+	int porcentagem_contaminados <- 10;
 	init {
-		create humano number:number_of_humans;
+		create humano number:numero_de_humanos;
 	}
 	
 	reflex fim_do_experimento {
@@ -21,9 +22,9 @@ global {
 }
 
 species	humano skills: [ moving ] {
-	bool contaminado <- flip(0.1);
+	bool contaminado <- flip(porcentagem_contaminados / 100);
 	float agressividade <- 10.0;
-	float vida <- 50.0;
+	float vida <- contaminado ? 30.0 : 50.0;
 	humano alvo_percebido <- nil;
 	
 	/*
@@ -51,12 +52,6 @@ species	humano skills: [ moving ] {
 		}
 	}
 	
-	/*
-	 * Atualiza a vida do agente contaminado, deixando ele sempre com 10 de vida, fazendo com que ele seja eliminado caso perca um combate contra um agente humano.
-	 */
-	reflex atualizar_vida_zumbi when:contaminado {
-		vida <- 10.0;
-	}
 	
 	/*
 	 * Se um zumbi encontra um humano próximo, ele passa a tê-lo como alvo.
@@ -75,8 +70,8 @@ species	humano skills: [ moving ] {
 	 * Limita a agressividade para não ser maior do que 40.
 	 */
 	reflex limitar_agressividade {
-		if(self.agressividade > 40.0) {
-			self.agressividade <- 40.0;
+		if(self.agressividade > 15.0) {
+			self.agressividade <- 15.0;
 		}
 	}
 	
@@ -91,12 +86,11 @@ species	humano skills: [ moving ] {
 				int zumbieValue <- mod(randomico, myself.agressividade);
 				int humanValue <- mod(randomico, self.agressividade);
 				
-				if(zumbieValue >= humanValue){
+				if(zumbieValue > humanValue){
 					self.contaminado <- true;
 					self.agressividade <- 10.0;
-					self.vida <- self.vida - myself.agressividade;
-					myself.agressividade <- myself.agressividade * 1.1;
-					if(self.vida < 0){
+					self.vida <- 30.0;
+					if(self.vida <= 0){
 						do die;
 					}
 				}
@@ -118,7 +112,7 @@ species	humano skills: [ moving ] {
 				if(humanValue > zumbieValue){
 					self.vida <- self.vida - myself.agressividade;
 					myself.agressividade <- myself.agressividade * 1.05;
-					if(self.vida < 0){
+					if(self.vida <= 0){
 						myself.agressividade <- myself.agressividade * 1.1;
 						do die;
 					}
@@ -132,9 +126,9 @@ species	humano skills: [ moving ] {
 	 */
 	reflex trocar_experiencias when:!contaminado {
 		ask humano at_distance(1){
-			if(!self.contaminado and (myself.agressividade < 10.0 or self.agressividade < 10.0)){
-				myself.agressividade <- myself.agressividade * 1.05;
-				self.agressividade <- self.agressividade * 1.05;
+			if(!self.contaminado){
+				myself.agressividade <- myself.agressividade * 1.1;
+				self.agressividade <- self.agressividade * 1.1;
 			}
 		}
 	}
@@ -151,12 +145,12 @@ species	humano skills: [ moving ] {
 
 experiment apocalipse type: gui{
 	float minimum_cycle_duration <- 0.5#second;
+	
+	parameter "Número de humanos: " var: numero_de_humanos;
+    parameter "Porcentagem de Infectados: " var: porcentagem_contaminados;
+    
 	output {
 		display myDisplay {
-			graphics "Ambiente" {
-				draw square(200) at:{0,0} color:rgb(235, 235, 235);
-			}
-			
 			species humano aspect:default ;
 		}
 		
