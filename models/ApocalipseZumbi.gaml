@@ -10,6 +10,15 @@ model ApocalipseZumbi
 global {
 	int numero_de_humanos <- 100;
 	int porcentagem_contaminados <- 10;
+	
+	int fator_de_combate <- 1000;
+	
+	float velocidade_zumbi <- 0.7;
+	float velocidade_humano <- 1.0;
+	
+	float agressividade_inicial <- 10.0;
+	float limite_de_agressividade <- 15.0;
+	
 	init {
 		create humano number:numero_de_humanos;
 	}
@@ -23,7 +32,7 @@ global {
 
 species	humano skills: [ moving ] {
 	bool contaminado <- flip(porcentagem_contaminados / 100);
-	float agressividade <- 10.0;
+	float agressividade <- agressividade_inicial;
 	float vida <- contaminado ? 10.0 : 50.0;
 	humano alvo_percebido <- nil;
 	
@@ -46,9 +55,9 @@ species	humano skills: [ moving ] {
 	 */
 	reflex atualizar_velocidade {
 		if(contaminado){
-			speed <- 0.7;
+			speed <- velocidade_zumbi;
 		}else{
-			speed <- 1.0;
+			speed <- velocidade_humano;
 		}
 	}
 	
@@ -70,8 +79,8 @@ species	humano skills: [ moving ] {
 	 * Limita a agressividade para não ser maior do que 40.
 	 */
 	reflex limitar_agressividade {
-		if(self.agressividade > 15.0) {
-			self.agressividade <- 15.0;
+		if(self.agressividade > limite_de_agressividade) {
+			self.agressividade <- limite_de_agressividade;
 		}
 	}
 	
@@ -82,13 +91,13 @@ species	humano skills: [ moving ] {
 	reflex atacar_humano when:contaminado {
 		ask humano at_distance(1){
 			if(!self.contaminado){
-				int zumbieValue <- mod(rnd (1000), myself.agressividade);
-				int humanValue <- mod(rnd (1000), self.agressividade);
+				int zumbieValue <- mod(rnd (fator_de_combate), myself.agressividade);
+				int humanValue <- mod(rnd (fator_de_combate), self.agressividade);
 				
 				if(zumbieValue > humanValue){
 					self.contaminado <- true;
-					self.agressividade <- 10.0;
-					self.vida <- 30.0;
+					self.agressividade <- agressividade_inicial;
+					self.vida <- 10.0;
 					if(self.vida <= 0){
 						do die;
 					}
@@ -104,8 +113,8 @@ species	humano skills: [ moving ] {
 	reflex atacar_zumbi when:!contaminado {
 		ask humano at_distance(1){
 			if(self.contaminado){
-				int zumbieValue <- mod(rnd (1000), myself.agressividade);
-				int humanValue <- mod(rnd (1000), self.agressividade);
+				int zumbieValue <- mod(rnd (fator_de_combate), myself.agressividade);
+				int humanValue <- mod(rnd (fator_de_combate), self.agressividade);
 				
 				if(humanValue > zumbieValue){
 					self.vida <- self.vida - myself.agressividade;
