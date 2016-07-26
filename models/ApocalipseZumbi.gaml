@@ -37,7 +37,7 @@ species	humano skills: [ moving ] {
 	/*
 	 * Se um zumbi tem algum humano como alvo, ele se move o seguindo.
 	 */
-	reflex seguir_humano when: alvo_percebido != nil and alvo_percebido != unknown and contaminado{
+	reflex seguir_humano when: alvo_percebido != nil and contaminado{
 		do goto target:{alvo_percebido.location.x + rnd(0, 5, 1), alvo_percebido.location.y + rnd(0, 5, 1)};
 	}
 	
@@ -61,7 +61,7 @@ species	humano skills: [ moving ] {
 			if(!self.contaminado){
 				myself.alvo_percebido <- self;
 			} else {
-				myself.alvo_percebido <- unknown;
+				myself.alvo_percebido <- nil;
 			}
 		}
 	}
