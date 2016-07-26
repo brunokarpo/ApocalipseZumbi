@@ -21,7 +21,7 @@ global {
 	
 	float vida_inicial <- 50.0;
 	float vida_de_zumbi <- 30.0;
-	float morto <- 0;
+	float morto <- 0.0;
 	
 	init {
 		create humano number:numero_de_humanos;
@@ -84,8 +84,8 @@ species	humano skills: [ moving ] {
 	 */
 	reflex ser_contaminado when:!contaminado{
 		if(vida <= vida_de_zumbi) {
-			contaminado <- true;
-			agressividade <- agressividade_inicial;
+			self.contaminado <- true;
+			self.agressividade <- agressividade_inicial;
 		}
 	}
 	
@@ -109,12 +109,12 @@ species	humano skills: [ moving ] {
 				int taxa_de_escape <- mod(rnd (fator_de_combate), self.agressividade);
 				int dano <- taxa_de_sucesso_do_ataque - taxa_de_escape;
 				
-				if(taxa_de_sucesso_do_ataque > taxa_de_escape){
+				if(taxa_de_sucesso_do_ataque >= taxa_de_escape){
 					self.vida <- self.vida - dano;
 					if(self.vida <= morto){
 						myself.agressividade <- myself.agressividade * 1.2;
 						do die;
-					} else if(self.vida < vida_de_zumbi) {
+					} else {
 						myself.agressividade <- myself.agressividade * 1.1;
 					}
 				}
@@ -152,8 +152,8 @@ species	humano skills: [ moving ] {
 	reflex trocar_experiencias when:!contaminado {
 		ask humano at_distance(1){
 			if(!self.contaminado){
-				myself.agressividade <- myself.agressividade * 1.1;
-				self.agressividade <- self.agressividade * 1.1;
+				myself.agressividade <- myself.agressividade * 1.01;
+				self.agressividade <- self.agressividade * 1.01;
 			}
 		}
 	}
