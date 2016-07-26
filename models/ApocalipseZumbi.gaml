@@ -150,8 +150,17 @@ experiment apocalipse type: gui{
     parameter "Porcentagem de Infectados: " var: porcentagem_contaminados;
     
 	output {
-		display myDisplay {
+		display Experimento {
 			species humano aspect:default ;
+		}
+		
+		display Resultados {
+			chart "Situação Populacional" type:pie {
+				data "Humanos vivos" value:(length(humano.population where (each.contaminado = false))) color: #green;
+				data "Zumbis vivos" value:(length(humano.population where (each.contaminado = true))) color: #brown;
+				data "População dizimada" value: (numero_de_humanos - length(humano.population));
+			}
+			
 		}
 		
 	}
