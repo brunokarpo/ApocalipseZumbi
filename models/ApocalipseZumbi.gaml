@@ -9,7 +9,7 @@ model ApocalipseZumbi
 
 global {
 	int numero_de_humanos <- 100;
-	int porcentagem_contaminados <- 10;
+	int porcentagem_contaminados <- 20;
 	
 	int fator_de_combate <- 1000;
 	
@@ -18,6 +18,10 @@ global {
 	
 	float agressividade_inicial <- 10.0;
 	float limite_de_agressividade <- 15.0;
+	
+	float vida_inicial <- 50.0;
+	float vida_de_zumbi <- 30.0;
+	float morto <- 0;
 	
 	init {
 		create humano number:numero_de_humanos;
@@ -33,7 +37,7 @@ global {
 species	humano skills: [ moving ] {
 	bool contaminado <- flip(porcentagem_contaminados / 100);
 	float agressividade <- agressividade_inicial;
-	float vida <- contaminado ? 10.0 : 50.0;
+	float vida <- contaminado ? vida_de_zumbi : vida_inicial;
 	humano alvo_percebido <- nil;
 	
 	/*
@@ -76,6 +80,16 @@ species	humano skills: [ moving ] {
 	}
 	
 	/*
+	 * Quando um agente humano é atacado por um agente zumbi e sua vida fica igual ou abaixo de 30, ele se torna um zumbi
+	 */
+	reflex ser_contaminado when:!contaminado{
+		if(vida <= vida_de_zumbi) {
+			contaminado <- true;
+			agressividade <- agressividade_inicial;
+		}
+	}
+	
+	/*
 	 * Limita a agressividade para não ser maior do que 40.
 	 */
 	reflex limitar_agressividade {
@@ -91,15 +105,17 @@ species	humano skills: [ moving ] {
 	reflex atacar_humano when:contaminado {
 		ask humano at_distance(1){
 			if(!self.contaminado){
-				int zumbieValue <- mod(rnd (fator_de_combate), myself.agressividade);
-				int humanValue <- mod(rnd (fator_de_combate), self.agressividade);
+				int taxa_de_sucesso_do_ataque <- mod(rnd (fator_de_combate), myself.agressividade);
+				int taxa_de_escape <- mod(rnd (fator_de_combate), self.agressividade);
+				int dano <- taxa_de_sucesso_do_ataque - taxa_de_escape;
 				
-				if(zumbieValue > humanValue){
-					self.contaminado <- true;
-					self.agressividade <- agressividade_inicial;
-					self.vida <- 10.0;
-					if(self.vida <= 0){
+				if(taxa_de_sucesso_do_ataque > taxa_de_escape){
+					self.vida <- self.vida - dano;
+					if(self.vida <= morto){
+						myself.agressividade <- myself.agressividade * 1.2;
 						do die;
+					} else if(self.vida < vida_de_zumbi) {
+						myself.agressividade <- myself.agressividade * 1.1;
 					}
 				}
 			}
@@ -113,15 +129,17 @@ species	humano skills: [ moving ] {
 	reflex atacar_zumbi when:!contaminado {
 		ask humano at_distance(1){
 			if(self.contaminado){
-				int zumbieValue <- mod(rnd (fator_de_combate), myself.agressividade);
-				int humanValue <- mod(rnd (fator_de_combate), self.agressividade);
+				int taxa_de_sucesso_do_ataque <- mod(rnd (fator_de_combate), myself.agressividade);
+				int taxa_de_escape <- mod(rnd (fator_de_combate), self.agressividade);
+				int dano <- taxa_de_sucesso_do_ataque - taxa_de_escape;
 				
-				if(humanValue > zumbieValue){
-					self.vida <- self.vida - myself.agressividade;
-					myself.agressividade <- myself.agressividade * 1.05;
-					if(self.vida <= 0){
-						myself.agressividade <- myself.agressividade * 1.1;
+				if(taxa_de_sucesso_do_ataque > taxa_de_escape){
+					self.vida <- self.vida - dano;
+					if(self.vida <= morto){
+						myself.agressividade <- myself.agressividade * 1.2;
 						do die;
+					} else {
+						myself.agressividade <- myself.agressividade * 1.1;
 					}
 				}
 			}
