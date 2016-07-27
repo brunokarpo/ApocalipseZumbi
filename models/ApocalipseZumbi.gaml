@@ -23,6 +23,8 @@ global {
 	float vida_de_zumbi <- 30.0;
 	float morto <- 0.0;
 	
+	geometry shape <- square(1000#m);
+	
 	init {
 		create humano number:numero_de_humanos;
 	}
@@ -164,12 +166,10 @@ species	humano skills: [ moving ] {
 		} else {
 			draw circle(1) color: #red;
 		}
-		draw string((alvo_percebido = nil ? 'N' : 'S') + '-' + agressividade + '-' + vida) color: #black;
 	}
 }
 
 experiment apocalipse type: gui{
-	float minimum_cycle_duration <- 0.5#second;
 	
 	parameter "Número de humanos: " var: numero_de_humanos;
     parameter "Porcentagem de Infectados: " var: porcentagem_contaminados;
